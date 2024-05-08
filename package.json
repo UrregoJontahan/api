@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node api-airbnb/app.js"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +14,7 @@
     "express": "^4.19.2",
     "mongodb": "^6.6.1",
     "mongoos": "^0.0.1-security",
-    "mongoose": "^8.3.4"
+    "mongoose": "^8.3.4",
+    "nodemon": "^3.1.0"
   }
 }
