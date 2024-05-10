@@ -1,17 +1,16 @@
 const mongoose = require("mongoose")
 
-const DB_URI = "mongodb://localhost:27017/airbnb"
-
 module.exports = () => {
     const connect = () =>{
         try {
-            const conn = mongoose.createConnection(DB_URI);
-            conn.on('connected', () => console.log('connected'));
-            conn.on('open', () => console.log('open'));
-            conn.on('disconnected', () => console.log('disconnected'));
-            conn.on('reconnected', () => console.log('reconnected'));
-            conn.on('disconnecting', () => console.log('disconnecting'));
-            conn.on('close', () => console.log('close'));
+          mongoose.connection.on('connected', () => console.log('connected'));
+          mongoose.connection.on('open', () => console.log('open'));
+          mongoose.connection.on('disconnected', () => console.log('disconnected'));
+          mongoose.connection.on('reconnected', () => console.log('reconnected'));
+          mongoose.connection.on('disconnecting', () => console.log('disconnecting'));
+          mongoose.connection.on('close', () => console.log('close'));
+          
+          mongoose.connect('mongodb://127.0.0.1:27017/airbnb');
           } catch (error) {
             console.log(error);
           }
