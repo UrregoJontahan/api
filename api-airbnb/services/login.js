@@ -1,10 +1,11 @@
 const ModelUser = require("../models/user");
 
 async function login(req, res) {
-  const { name, password } = req.body;
+  const { name, celphone ,password } = req.body;
 
   try {
-    const user = await ModelUser.findOne({ name, password });
+    const user = await ModelUser.findOne({ name, celphone ,password });
+   console.log(user)
     if (!user) {
       console.log("No conozco esa gonorrea");
       return res.status(401).json({ message: 'Credenciales incorrectas' });
