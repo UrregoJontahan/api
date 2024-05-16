@@ -3,39 +3,70 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const db = require("./services/databaseService");
-const session = require("express-session");
-const passport = require("passport");
-const passportSetup = require("./setup-passport/passport-setup-google"); 
-const passportFacebook = require("./setup-passport/passport-facebook")
+const { OAuth2Client } = require("google-auth-library");
+const axios = require("axios")
 
 const app = express();
-
-app.use(session({
-  secret: process.env.CLIENT_SECRET || process.env.ClIENT_FACEBOOK_SECRET,
-  resave: false,
-  saveUninitialized: true
-}));
 
 app.use(bodyParser.json());
 app.use(cors());
 app.use("/users", require("./controllers/loginRoute"));
-app.use(passport.initialize());
-app.use(passport.session());
 
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'], prompt:"consent" })
-);
+const CLIENT_ID = process.env.CLIENT_ID
+const CLIENT_SECRET = process.env.CLIENT_SECRET
+const REDIRECT_URI = "http://localhost:3000/auth?type=google"
+const oauth2Client = new OAuth2Client (CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
-app.post("/auth/google",
-  // const { code } = req.body;
-  // console.log("Código recibido en el backend:", code);
-  passport.authenticate('google', { scope: ['profile', 'email'], prompt:"consent" } )
-);
+/////////////////////////////////////////////
 
-app.get('/auth/facebook',
-  passport.authenticate('facebook', { scope: ['profile', 'email'], prompt:"consent" })
-);
-  
+const APP_ID =process.env.FACEBOOK_APP_ID;
+const APP_SECRET = process.env.FACEBOOK_APP_SECRET;
+const REDIRECT_URI_FACEBOOK = "http://localhost:3000/auth?type=facebook"
+
+app.get("/google", (req, res) => {
+  const authUri = oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope:["email"]
+  })
+  res.redirect(authUri)
+})
+
+app.post("/google/callback", async (req, res)=>{
+  const {code} = req.body
+  const {tokens} = await oauth2Client.getToken(code)
+  oauth2Client.setCredentials(tokens)
+
+  const {data} = await oauth2Client.request({
+    url: "https://www.googleapis.com/oauth2/v1/userinfo",
+
+  })
+
+  console.log(data)
+  res.send(data)
+})
+
+/////////////////////////////////////////////////////////////////////////
+
+app.get('/facebook', (req, res) => {
+  const url = `https://www.facebook.com/v13.0/dialog/oauth?client_id=${APP_ID}&redirect_uri=${REDIRECT_URI_FACEBOOK}&scope=email`;
+  res.redirect(url);
+});
+
+app.post('/facebook/callback', async (req, res) => {
+  const { code } = req.body;
+  console.log("code", code)
+  const { data } = await axios.get(`https://graph.facebook.com/v13.0/oauth/access_token?client_id=${APP_ID}&client_secret=${APP_SECRET}&code=${code}&redirect_uri=${REDIRECT_URI_FACEBOOK}`);
+  const { access_token } = data;
+  const { data: profile } = await axios.get(`https://graph.facebook.com/v13.0/me?fields=name,email&access_token=${access_token}`);
+
+  console.log("data",data)
+  console.log("acces", access_token)
+  console.log("profile",profile)
+
+  res.send(profile)
+ 
+});
+
 require('./controllers/route')(app);
 require("./controllers/routePlace")(app);
 
