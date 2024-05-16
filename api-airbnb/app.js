@@ -5,12 +5,17 @@ const bodyParser = require("body-parser");
 const db = require("./services/databaseService");
 const { OAuth2Client } = require("google-auth-library");
 const axios = require("axios")
+const uploadRoutes = require("../api-airbnb/controllers/images");
 
 const app = express();
 
 app.use(bodyParser.json());
 app.use(cors());
 app.use("/users", require("./controllers/loginRoute"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use('/api', uploadRoutes);
 
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
