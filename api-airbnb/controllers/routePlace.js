@@ -1,4 +1,5 @@
 const ModelRoom = require("../models/places")
+const axios = require("axios")
 
 module.exports = function (app){
     app.get("/rooms", async (req, res) => {
@@ -7,15 +8,40 @@ module.exports = function (app){
     });
 
     app.get("/rooms/:id", async (req, res) => {
-        const { id } = req.params;
-        const room = await ModelRoom.findById(id);
-        res.json(room);
+        const id  = req.params._id;
+        console.log(id)
+        const response = await ModelRoom.findById(id)
+        console.log(response,"response")
+        res.json(response);
     });
 
     app.post("/rooms", async (req, res) => {
-        const roomData = req.body;
-        const newRoom = await ModelRoom.create(roomData);
-        res.status(200).json(newRoom);
-});
-
-}
+        const { title, description, price, city, location, capacity, amenities, photos } = req.body;
+    
+        try {
+          const response = await axios.get("http://localhost:2000/api/location/coordinates", {
+            params: { address: location }
+          });
+    
+          const coordinates = response.data;
+    
+          const newRoom = new ModelRoom({
+            title,
+            description,
+            price,
+            city,
+            location,
+            capacity,
+            amenities: amenities.split(","),
+            photos,
+            coordinates
+          });
+    
+          await newRoom.save();
+          res.status(200).json(newRoom);
+        } catch (error) {
+          console.error('Error al guardar la habitación:', error);
+          res.status(500).json({ error: 'Error al guardar la habitación' });
+        }
+    });
+};

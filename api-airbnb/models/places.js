@@ -15,13 +15,21 @@ const RoomSchema = new Schema({
         type: Number,
         required: true
     },
+    city: {
+        type: String,
+        required: true
+    },
     location: {
         type: String,
         required: true
     },
-    capacity: {
-        type: Number,
-        required: true
+    coordinates: {
+        lat: {
+            type: Number,
+        },
+        lng: {
+            type: Number,  
+        }
     },
     amenities: {
         type: [String],
