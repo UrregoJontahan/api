@@ -38,6 +38,10 @@ const RoomSchema = new Schema({
     photos: {
         type: [String],
         default: []
+    },
+    host: {
+        type: String,
+        required: true
     }
 });
 

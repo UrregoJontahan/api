@@ -8,15 +8,13 @@ module.exports = function (app){
     });
 
     app.get("/rooms/:id", async (req, res) => {
-        const id  = req.params._id;
-        console.log(id)
+        const id  = req.params.id;
         const response = await ModelRoom.findById(id)
-        console.log(response,"response")
         res.json(response);
     });
 
     app.post("/rooms", async (req, res) => {
-        const { title, description, price, city, location, capacity, amenities, photos } = req.body;
+        const { title, description, price, city, location, capacity, amenities, photos, host  } = req.body;
     
         try {
           const response = await axios.get("http://localhost:2000/api/location/coordinates", {
@@ -34,7 +32,8 @@ module.exports = function (app){
             capacity,
             amenities: amenities.split(","),
             photos,
-            coordinates
+            coordinates,
+            host
           });
     
           await newRoom.save();
